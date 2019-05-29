@@ -1,0 +1,11 @@
+NREL Validation Todo List...
+1. Timeseries plots of buoy/model winds (at selected stations).  Probably need to create subplots for each month or quarter.
+2. Timeseries plots of buoy/model daily mean/std winds
+3. Scatterplot of buoy/model winds (hourly and daily)
+
+4. Calculate full year validation statistics for each station
+5. Calculate validation statistics for each month and plot them for each station
+
+6. Timeseries plots of daily buoy/model mean_difference / RMS wind speeds 
+7. Scatterplot of daily buoy/model mean_diff (or RMS) vs. daily buoy/SST difference (or RMS)
+
