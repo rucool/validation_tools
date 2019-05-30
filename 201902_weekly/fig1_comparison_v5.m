@@ -4,20 +4,22 @@
 % Editted by Jaden 2/14/19
 %------------------------------------------------
 close all; clear; clc;
+addpath /Users/jadendicopoulos/Documents/GitHub/validation_tools/loaders_and_functions
 
 % Select a Station
 buoy = '44065';
 
 % Specify Model File
-% dfile = 'wrf_data_20190121_20190203.nc';
-addpath /Volumes/home/jad438/wrf_converters
-dfile = 'new2week_20190401_20190416.nc';
-end_date = datenum(2019,4,16);
-total_days = 15;
+addpath /Volumes/home/jad438/wrf_converters/2weeks
+dfile = '2weeks_20190512_20190525.nc';
+end_date = datenum(2019,5,25);
+total_days = 2;
+glvl = 2; %height level for gfs, 10,80,100
+nlvl = 2; %height level for nam, 10,80
 
 %% Load Data
 % GFS and NAM
-[gfs_time, gfs_ws, ~, nam_time, nam_ws, ~, start_date] = nams_gfs_dataload_v2(end_date,total_days,buoy);
+[gfs_time, gfs_ws, ~, nam_time, nam_ws, ~, start_date] = nams_gfs_dataload(end_date,total_days,buoy,glvl,nlvl);
 
 % WRF model data
 wrf_dtime = ncread(dfile,'time')+datenum(2010,1,1); %Convert to Matlab time
@@ -95,7 +97,7 @@ l = legend('Location','Best');
 % Output plot
 set(gcf,'PaperPosition',[0.25 0.5 10 5]);
 fname = sprintf('output/buoy_nams_gfs_comparison_%s_%s_%s',buoy,datestr(wrf_dtime(1),29),datestr(wrf_dtime(end),29));
-print(gcf,'-dpng','-r300', fname);
+%print(gcf,'-dpng','-r300', fname);
 
 %% Metrics
 % Calculate and Output Statistics

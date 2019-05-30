@@ -1,6 +1,10 @@
-function [time_gfs, ws_gfs, wd_gfs, time_nams, ws_nams, wd_nams, start_date] = nams_gfs_dataload_v2(end_date,total_days,buoy)
-%clear; clc; close all;
-%end_date = datenum(2019,3,8);
+function [gfs_time, gfs_ws, gfs_wd, nam_time , nam_ws, nam_wd, start_date] = nams_gfs_dataload(end_date,total_days,buoy,glvl,nlvl)
+% clear; clc; close all;
+% end_date = datenum(2019,5,25);
+% total_days = 2;
+% buoy = '44065';
+% glvl = 2; %height level for gfs, 10,80,100
+% nlvl = 2; %height level for nam, 10,80
 
 if strcmp(buoy,'44065') == 1
     %gfs
@@ -35,29 +39,29 @@ for ii = 1:length(timespan)
 fidgfs{ii} = ['gfs_data_' char(timespan(ii)) '.nc']';
 
 gfs_raw(ii).ws = ncread(fidgfs{ii}','wind_speed');
-gfs_new(ii).ws = squeeze(gfs_raw(ii).ws(c1,c2,:));
+gfs_new(ii).ws = squeeze(gfs_raw(ii).ws(c1,c2,glvl,:));
 gfs_raw(ii).wd = ncread(fidgfs{ii}','wind_from_direction');
-gfs_new(ii).wd = squeeze(gfs_raw(ii).wd(c1,c2,:));
+gfs_new(ii).wd = squeeze(gfs_raw(ii).wd(c1,c2,glvl,:));
 gfs_new(ii).time = ncread(fidgfs{ii}','time')+datenum(2010,1,1);
 
-fidnams{ii} = ['nams_data_' char(timespan(ii)) '.nc']';
-nams_raw(ii).ws = ncread(fidnams{ii}','wind_speed');
-nams_new(ii).ws = squeeze(nams_raw(ii).ws(c3,c4,:));
-nams_raw(ii).wd = ncread(fidnams{ii}','wind_from_direction');
-nams_new(ii).wd = squeeze(nams_raw(ii).wd(c3,c4,:));
-nams_new(ii).time = ncread(fidnams{ii}','time')+datenum(2010,1,1);
+fidnam{ii} = ['nams_data_' char(timespan(ii)) '.nc']';
+nam_raw(ii).ws = ncread(fidnam{ii}','wind_speed');
+nam_new(ii).ws = squeeze(nam_raw(ii).ws(c3,c4,nlvl,:));
+nam_raw(ii).wd = ncread(fidnam{ii}','wind_from_direction');
+nam_new(ii).wd = squeeze(nam_raw(ii).wd(c3,c4,nlvl,:));
+nam_new(ii).time = ncread(fidnam{ii}','time')+datenum(2010,1,1);
 end
 
 %% nams
 
-ws_nams = reshape([nams_new(:).ws],[],1);
-wd_nams = reshape([nams_new(:).wd],[],1);
-time_nams = reshape([nams_new(:).time],[],1);
+nam_ws = reshape([nam_new(:).ws],[],1);
+nam_wd = reshape([nam_new(:).wd],[],1);
+nam_time = reshape([nam_new(:).time],[],1);
 
 %% gfs
 
-ws_gfs = reshape([gfs_new(:).ws],[],1);
-wd_gfs = reshape([gfs_new(:).wd],[],1);
-time_gfs = reshape([gfs_new(:).time],[],1);
+gfs_ws = reshape([gfs_new(:).ws],[],1);
+gfs_wd = reshape([gfs_new(:).wd],[],1);
+gfs_time = reshape([gfs_new(:).time],[],1);
 
 end
