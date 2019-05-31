@@ -14,8 +14,8 @@ addpath /Volumes/home/jad438/wrf_converters/2weeks
 dfile = '2weeks_20190512_20190525.nc';
 end_date = datenum(2019,5,25);
 total_days = 2;
-glvl = 2; %height level for gfs, 10,80,100
-nlvl = 2; %height level for nam, 10,80
+glvl = 1; %height level for gfs, 10,80,100
+nlvl = 1; %height level for nam, 10,80
 
 %% Load Data
 % GFS and NAM
@@ -96,32 +96,29 @@ l = legend('Location','Best');
 
 % Output plot
 set(gcf,'PaperPosition',[0.25 0.5 10 5]);
-fname = sprintf('output/buoy_nams_gfs_comparison_%s_%s_%s',buoy,datestr(wrf_dtime(1),29),datestr(wrf_dtime(end),29));
+fname = sprintf('output/buoy_nams_gfs_comparison_%s_%s_%s',buoy,datestr(start_date(1),29),datestr(end_date(end),29));
 %print(gcf,'-dpng','-r300', fname);
 
 %% Metrics
 % Calculate and Output Statistics
-addpath ../18q4_report/
 
 ind = find(wrf_dtime>=start_date & wrf_dtime < end_date);
 ind2 = find(nam_time>=start_date & nam_time < end_date);
 ind3 = find(gfs_time>=start_date & gfs_time < end_date);
 
-outfile = sprintf('output/metrics_all_%s_%s_%s.csv',buoy,datestr(wrf_dtime(ind(1)),29),datestr(wrf_dtime(ind(end)),29));
+outfile = sprintf('output/metrics_all_%s_%s_%s.csv',buoy,datestr(start_date,29),datestr(end_date,29));
 fid = fopen(outfile,'w');
 fprintf(fid,'%s\n','Model,mo,mf,so,sf,rms,crms,mb,cc,mae,c1,c2,c3,count');
-% WRF
 
+% WRF
 metricsWRF = wrf_metrics(buoy_ws(ind),wrf_ws(ind));
 disp(metricsWRF);
-
 fprintf(fid,'%s,','WRF 3.9');
 fprintf(fid,'%5.3f,%5.3f,%5.3f,%5.3f,',metricsWRF.mo,metricsWRF.mf,metricsWRF.so,metricsWRF.sf);
 fprintf(fid,'%5.3f,%5.3f,%5.3f,%5.3f,%4.2f,',metricsWRF.rms,metricsWRF.crms,metricsWRF.mb,metricsWRF.cc,metricsWRF.mae);
 fprintf(fid,'%5.3f,%5.3f,%5.3f,%5.3f\n',metricsWRF.c1,metricsWRF.c2,metricsWRF.c3,metricsWRF.count);
 
 % NAM
-
 metricsNAM = wrf_metrics(buoy_ws2(ind2),nam_ws(ind2));
 disp(metricsNAM);
 fprintf(fid,'%s,','NAM');
@@ -130,7 +127,6 @@ fprintf(fid,'%5.3f,%5.3f,%5.3f,%5.3f,%4.2f,',metricsNAM.rms,metricsNAM.crms,metr
 fprintf(fid,'%5.3f,%5.3f,%5.3f,%5.3f\n',metricsNAM.c1,metricsNAM.c2,metricsNAM.c3,metricsNAM.count);
 
 % GFS
-
 metricsGFS = wrf_metrics(buoy_ws3(ind3),gfs_ws(ind3));
 disp(metricsGFS);
 fprintf(fid,'%s,','GFS');
@@ -139,7 +135,6 @@ fprintf(fid,'%5.3f,%5.3f,%5.3f,%5.3f,%4.2f,',metricsGFS.rms,metricsGFS.crms,metr
 fprintf(fid,'%5.3f,%5.3f,%5.3f,%5.3f\n',metricsGFS.c1,metricsGFS.c2,metricsGFS.c3,metricsGFS.count);
 
 fclose(fid);
-toc
 
 %% Thresholds for data colors
 
