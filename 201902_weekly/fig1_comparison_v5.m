@@ -1,7 +1,7 @@
 % Weekly validation figures
 % BPU Wind Energy Project [The one with DoE buoy]
 % Written by Sage 2/5/19
-% Editted by Jaden 2/14/19
+% Editted by Jaden 6/03/19
 %------------------------------------------------
 close all; clear; clc;
 addpath /Users/jadendicopoulos/Documents/GitHub/validation_tools/loaders_and_functions

@@ -28,6 +28,4 @@ end
 %ndbc_url = 'http://dods.ndbc.noaa.gov//thredds/dodsC/data/stdmet/44025/44025h2015.nc';
 
 
-
-
 %end
