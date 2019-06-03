@@ -1,10 +1,10 @@
-%function [gfs_time, gfs_ws, gfs_wd, nam_time , nam_ws, nam_wd, start_date] = nams_gfs_dataload(end_date,total_days,buoy,glvl,nlvl)
-clear; clc; close all;
+function [gfs_time, gfs_ws, gfs_wd, nam_time , nam_ws, nam_wd, start_date] = nams_gfs_dataload(end_date,total_days,buoy,glvl,nlvl)
+%clear; clc; close all;
 end_date = datenum(2019,5,25);
-total_days = 2;
-buoy = '44065';
-glvl = 2; %height level for gfs, 10,80,100
-nlvl = 2; %height level for nam, 10,80
+%total_days = 2;
+%buoy = '44065';
+%glvl = 2; %height level for gfs, 10,80,100
+%nlvl = 2; %height level for nam, 10,80
 
 if strcmp(buoy,'44065') == 1
     %gfs
@@ -70,4 +70,4 @@ gfs_ws = reshape([gfs_new(:).ws],[],1);
 gfs_wd = reshape([gfs_new(:).wd],[],1);
 gfs_time = reshape([gfs_new(:).time],[],1);
 
-%end
+end
