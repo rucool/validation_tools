@@ -1,6 +1,6 @@
-function [gfs_time, gfs_ws, gfs_wd, nam_time , nam_ws, nam_wd, start_date] = nams_gfs_dataload(end_date,total_days,buoy,glvl,nlvl)
+function [gfs_time, gfs_ws, gfs_wd, nam_time, nam_ws, nam_wd, start_date] = nams_gfs_dataload(end_date,total_days,buoy,glvl,nlvl)
 %clear; clc; close all;
-end_date = datenum(2019,5,25);
+%end_date = datenum(2019,5,25);
 %total_days = 2;
 %buoy = '44065';
 %glvl = 2; %height level for gfs, 10,80,100
