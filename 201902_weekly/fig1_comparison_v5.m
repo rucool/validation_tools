@@ -11,15 +11,19 @@ buoy = '44065';
 
 % Specify Model File
 addpath /Volumes/home/jad438/wrf_converters/2weeks
-dfile = '2weeks_20190512_20190525.nc';
-end_date = datenum(2019,5,25);
-total_days = 2;
+dfile = '2week_20190528_20190603.nc';
+end_date = datenum(2019,6,04);
+total_days = 7;
 glvl = 1; %height level for gfs, 10,80,100
 nlvl = 1; %height level for nam, 10,80
+hlvl = 1; %height level for h3r, 10,80
 
 %% Load Data
 % GFS and NAM
-[gfs_time, gfs_ws, ~, nam_time, nam_ws, ~, start_date] = nams_gfs_dataload(end_date,total_days,buoy,glvl,nlvl);
+[gfs_time, gfs_ws, ~, nam_time, nam_ws, ~, ~] = nams_gfs_dataload(end_date,total_days,buoy,glvl,nlvl);
+
+% HRRR
+[hrrr_time, hrrr_ws, hrrr_wd, start_date] = hrrr_dataload(end_date,total_days,buoy,hlvl);
 
 % WRF model data
 wrf_dtime = ncread(dfile,'time')+datenum(2010,1,1); %Convert to Matlab time
@@ -30,59 +34,60 @@ ind = strmatch(buoy,wrf_stations);
 wrf_ws = squeeze(wrf_ws(1,ind,:));
 %%
 % Load Realtime Buoy Data
-ndbc_url = sprintf('https://dods.ndbc.noaa.gov/thredds/dodsC/data/stdmet/%s/%sh9999.nc',buoy,buoy);
-ndbc_dtime = double(ncread(ndbc_url,'time'))/(24*60*60)+datenum(1970,1,1);
-ind = find(ndbc_dtime>=min(wrf_dtime) & ndbc_dtime<max(wrf_dtime));
-ndbc_dtime = ndbc_dtime(ind);
-ndbc_ws = squeeze(ncread(ndbc_url,'wind_spd',[1 1 min(ind)],[1 1 length(ind)],[1 1 1]));
-
-% Interpolate buoy data to nearest hour
-for jj=1:length(wrf_dtime)
-  dtime = wrf_dtime(jj);
-  ind = find(ndbc_dtime>(dtime-2/12) & ndbc_dtime<(dtime+2/12)); %Limit to 4h window
-  if length(ind)>1
-    buoy_ws(jj,1) = interp1(ndbc_dtime(ind),ndbc_ws(ind),dtime);
-  else
-    buoy_ws(jj,1) = NaN;
-  end
-end
-
-% Interpolate NAM data to nearest hour
-for jj=1:length(nam_time)
-  dtime = wrf_dtime(jj);
-  ind = find(ndbc_dtime>(dtime-2/12) & ndbc_dtime<(dtime+2/12)); %Limit to 4h window
-  if length(ind)>1
-    buoy_ws2(jj,1) = interp1(ndbc_dtime(ind),ndbc_ws(ind),dtime);
-  else
-    buoy_ws2(jj,1) = NaN;
-  end
-end
-
-% Interpolate GFS data to nearest hour
-for jj=1:length(gfs_time)
-  dtime = wrf_dtime(jj);
-  ind = find(ndbc_dtime>(dtime-2/12) & ndbc_dtime<(dtime+2/12)); %Limit to 4h window
-  if length(ind)>1
-    buoy_ws3(jj,1) = interp1(ndbc_dtime(ind),ndbc_ws(ind),dtime);
-  else
-    buoy_ws3(jj,1) = NaN;
-  end
-end
-
-% Scale Buoy Data
-zo = .5/1000;
-us = log(10/zo)/log(5/zo);
-buoy_ws = buoy_ws*us;
-buoy_ws2 = buoy_ws2*us;
-buoy_ws3 = buoy_ws3*us;
+% ndbc_url = sprintf('https://dods.ndbc.noaa.gov/thredds/dodsC/data/stdmet/%s/%sh9999.nc',buoy,buoy);
+% ndbc_dtime = double(ncread(ndbc_url,'time'))/(24*60*60)+datenum(1970,1,1);
+% ind = find(ndbc_dtime>=min(wrf_dtime) & ndbc_dtime<max(wrf_dtime));
+% ndbc_dtime = ndbc_dtime(ind);
+% ndbc_ws = squeeze(ncread(ndbc_url,'wind_spd',[1 1 min(ind)],[1 1 length(ind)],[1 1 1]));
+% 
+% % Interpolate buoy data to nearest hour
+% for jj=1:length(wrf_dtime)
+%   dtime = wrf_dtime(jj);
+%   ind = find(ndbc_dtime>(dtime-2/12) & ndbc_dtime<(dtime+2/12)); %Limit to 4h window
+%   if length(ind)>1
+%     buoy_ws(jj,1) = interp1(ndbc_dtime(ind),ndbc_ws(ind),dtime);
+%   else
+%     buoy_ws(jj,1) = NaN;
+%   end
+% end
+% 
+% % Interpolate NAM data to nearest hour
+% for jj=1:length(nam_time)
+%   dtime = wrf_dtime(jj);
+%   ind = find(ndbc_dtime>(dtime-2/12) & ndbc_dtime<(dtime+2/12)); %Limit to 4h window
+%   if length(ind)>1
+%     buoy_ws2(jj,1) = interp1(ndbc_dtime(ind),ndbc_ws(ind),dtime);
+%   else
+%     buoy_ws2(jj,1) = NaN;
+%   end
+% end
+% 
+% % Interpolate GFS data to nearest hour
+% for jj=1:length(gfs_time)
+%   dtime = wrf_dtime(jj);
+%   ind = find(ndbc_dtime>(dtime-2/12) & ndbc_dtime<(dtime+2/12)); %Limit to 4h window
+%   if length(ind)>1
+%     buoy_ws3(jj,1) = interp1(ndbc_dtime(ind),ndbc_ws(ind),dtime);
+%   else
+%     buoy_ws3(jj,1) = NaN;
+%   end
+% end
+% 
+% % Scale Buoy Data
+% zo = .5/1000;
+% us = log(10/zo)/log(5/zo);
+% buoy_ws = buoy_ws*us;
+% buoy_ws2 = buoy_ws2*us;
+% buoy_ws3 = buoy_ws3*us;
 
 %% Plotting
 % Plot the data
 hold on
 
-plot(wrf_dtime,buoy_ws,'k-','linewidth',1,'displayname','Buoy');
+% plot(wrf_dtime,buoy_ws,'k-','linewidth',1,'displayname','Buoy');
 plot(nam_time,nam_ws,'color',[0 0.4470 0.7410],'linewidth',.5,'displayname','NAM');
 plot(gfs_time,gfs_ws,'color',[0.4660 0.6740 0.1880],'linewidth',.5,'displayname','GFS');
+plot(hrrr_time,hrrr_ws,'linewidth',.5,'displayname','HRRR');
 plot(wrf_dtime,wrf_ws,'r','linewidth',.8,'displayname','WRF 3.9');
 
 datetick('x','keepticks');
