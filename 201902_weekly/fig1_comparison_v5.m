@@ -12,8 +12,8 @@ buoy = '44065';
 % Specify Model File
 addpath /Volumes/home/jad438/wrf_converters/2weeks
 dfile = '2week_20190528_20190603.nc';
-end_date = datenum(2019,6,04);
-total_days = 7;
+end_date = datenum(2019,6,01);
+total_days = 4;
 glvl = 1; %height level for gfs, 10,80,100
 nlvl = 1; %height level for nam, 10,80
 hlvl = 1; %height level for h3r, 10,80
@@ -23,7 +23,7 @@ hlvl = 1; %height level for h3r, 10,80
 [gfs_time, gfs_ws, ~, nam_time, nam_ws, ~, ~] = nams_gfs_dataload(end_date,total_days,buoy,glvl,nlvl);
 
 % HRRR
-[hrrr_time, hrrr_ws, hrrr_wd, start_date] = hrrr_dataload(end_date,total_days,buoy,hlvl);
+[hrrr_time, hrrr_ws, ~, start_date] = hrrr_dataload(end_date,total_days,buoy,hlvl);
 
 % WRF model data
 wrf_dtime = ncread(dfile,'time')+datenum(2010,1,1); %Convert to Matlab time
@@ -34,57 +34,68 @@ ind = strmatch(buoy,wrf_stations);
 wrf_ws = squeeze(wrf_ws(1,ind,:));
 %%
 % Load Realtime Buoy Data
-% ndbc_url = sprintf('https://dods.ndbc.noaa.gov/thredds/dodsC/data/stdmet/%s/%sh9999.nc',buoy,buoy);
-% ndbc_dtime = double(ncread(ndbc_url,'time'))/(24*60*60)+datenum(1970,1,1);
-% ind = find(ndbc_dtime>=min(wrf_dtime) & ndbc_dtime<max(wrf_dtime));
-% ndbc_dtime = ndbc_dtime(ind);
-% ndbc_ws = squeeze(ncread(ndbc_url,'wind_spd',[1 1 min(ind)],[1 1 length(ind)],[1 1 1]));
-% 
-% % Interpolate buoy data to nearest hour
-% for jj=1:length(wrf_dtime)
-%   dtime = wrf_dtime(jj);
-%   ind = find(ndbc_dtime>(dtime-2/12) & ndbc_dtime<(dtime+2/12)); %Limit to 4h window
-%   if length(ind)>1
-%     buoy_ws(jj,1) = interp1(ndbc_dtime(ind),ndbc_ws(ind),dtime);
-%   else
-%     buoy_ws(jj,1) = NaN;
-%   end
-% end
-% 
-% % Interpolate NAM data to nearest hour
-% for jj=1:length(nam_time)
-%   dtime = wrf_dtime(jj);
-%   ind = find(ndbc_dtime>(dtime-2/12) & ndbc_dtime<(dtime+2/12)); %Limit to 4h window
-%   if length(ind)>1
-%     buoy_ws2(jj,1) = interp1(ndbc_dtime(ind),ndbc_ws(ind),dtime);
-%   else
-%     buoy_ws2(jj,1) = NaN;
-%   end
-% end
-% 
-% % Interpolate GFS data to nearest hour
-% for jj=1:length(gfs_time)
-%   dtime = wrf_dtime(jj);
-%   ind = find(ndbc_dtime>(dtime-2/12) & ndbc_dtime<(dtime+2/12)); %Limit to 4h window
-%   if length(ind)>1
-%     buoy_ws3(jj,1) = interp1(ndbc_dtime(ind),ndbc_ws(ind),dtime);
-%   else
-%     buoy_ws3(jj,1) = NaN;
-%   end
-% end
-% 
-% % Scale Buoy Data
-% zo = .5/1000;
-% us = log(10/zo)/log(5/zo);
-% buoy_ws = buoy_ws*us;
-% buoy_ws2 = buoy_ws2*us;
-% buoy_ws3 = buoy_ws3*us;
+ndbc_url = sprintf('https://dods.ndbc.noaa.gov/thredds/dodsC/data/stdmet/%s/%sh9999.nc',buoy,buoy);
+ndbc_dtime = double(ncread(ndbc_url,'time'))/(24*60*60)+datenum(1970,1,1);
+ind = find(ndbc_dtime>=min(wrf_dtime) & ndbc_dtime<max(wrf_dtime));
+ndbc_dtime = ndbc_dtime(ind);
+ndbc_ws = squeeze(ncread(ndbc_url,'wind_spd',[1 1 min(ind)],[1 1 length(ind)],[1 1 1]));
 
+% Interpolate buoy data to nearest hour
+for jj=1:length(wrf_dtime)
+  dtime = wrf_dtime(jj);
+  ind = find(ndbc_dtime>(dtime-2/12) & ndbc_dtime<(dtime+2/12)); %Limit to 4h window
+  if length(ind)>1
+    buoy_ws(jj,1) = interp1(ndbc_dtime(ind),ndbc_ws(ind),dtime);
+  else
+    buoy_ws(jj,1) = NaN;
+  end
+end
+
+% Interpolate NAM data to nearest hour
+for jj=1:length(nam_time)
+  dtime = wrf_dtime(jj);
+  ind = find(ndbc_dtime>(dtime-2/12) & ndbc_dtime<(dtime+2/12)); %Limit to 4h window
+  if length(ind)>1
+    buoy_ws2(jj,1) = interp1(ndbc_dtime(ind),ndbc_ws(ind),dtime);
+  else
+    buoy_ws2(jj,1) = NaN;
+  end
+end
+
+% Interpolate GFS data to nearest hour
+for jj=1:length(gfs_time)
+  dtime = wrf_dtime(jj);
+  ind = find(ndbc_dtime>(dtime-2/12) & ndbc_dtime<(dtime+2/12)); %Limit to 4h window
+  if length(ind)>1
+    buoy_ws3(jj,1) = interp1(ndbc_dtime(ind),ndbc_ws(ind),dtime);
+  else
+    buoy_ws3(jj,1) = NaN;
+  end
+end
+
+% Interpolate GFS data to nearest hour
+for jj=1:length(hrrr_time)
+  dtime = wrf_dtime(jj);
+  ind = find(ndbc_dtime>(dtime-2/12) & ndbc_dtime<(dtime+2/12)); %Limit to 4h window
+  if length(ind)>1
+    buoy_ws4(jj,1) = interp1(ndbc_dtime(ind),ndbc_ws(ind),dtime);
+  else
+    buoy_ws4(jj,1) = NaN;
+  end
+end
+
+% Scale Buoy Data
+zo = .5/1000;
+us = log(10/zo)/log(5/zo);
+buoy_ws = buoy_ws*us;
+buoy_ws2 = buoy_ws2*us;
+buoy_ws3 = buoy_ws3*us;
+buoy_ws4 = buoy_ws4*us;
 %% Plotting
 % Plot the data
 hold on
 
-% plot(wrf_dtime,buoy_ws,'k-','linewidth',1,'displayname','Buoy');
+plot(wrf_dtime,buoy_ws,'k-','linewidth',1,'displayname','Buoy');
 plot(nam_time,nam_ws,'color',[0 0.4470 0.7410],'linewidth',.5,'displayname','NAM');
 plot(gfs_time,gfs_ws,'color',[0.4660 0.6740 0.1880],'linewidth',.5,'displayname','GFS');
 plot(hrrr_time,hrrr_ws,'linewidth',.5,'displayname','HRRR');
@@ -102,7 +113,7 @@ l = legend('Location','Best');
 % Output plot
 set(gcf,'PaperPosition',[0.25 0.5 10 5]);
 fname = sprintf('output/buoy_nams_gfs_comparison_%s_%s_%s',buoy,datestr(start_date(1),29),datestr(end_date(end),29));
-%print(gcf,'-dpng','-r300', fname);
+print(gcf,'-dpng','-r300', fname);
 
 %% Metrics
 % Calculate and Output Statistics
@@ -110,6 +121,7 @@ fname = sprintf('output/buoy_nams_gfs_comparison_%s_%s_%s',buoy,datestr(start_da
 ind = find(wrf_dtime>=start_date & wrf_dtime < end_date);
 ind2 = find(nam_time>=start_date & nam_time < end_date);
 ind3 = find(gfs_time>=start_date & gfs_time < end_date);
+ind4 = find(hrrr_time>=start_date & hrrr_time < end_date);
 
 outfile = sprintf('output/metrics_all_%s_%s_%s.csv',buoy,datestr(start_date,29),datestr(end_date,29));
 fid = fopen(outfile,'w');
@@ -139,6 +151,14 @@ fprintf(fid,'%5.3f,%5.3f,%5.3f,%5.3f,',metricsGFS.mo,metricsGFS.mf,metricsGFS.so
 fprintf(fid,'%5.3f,%5.3f,%5.3f,%5.3f,%4.2f,',metricsGFS.rms,metricsGFS.crms,metricsGFS.mb,metricsGFS.cc,metricsGFS.mae);
 fprintf(fid,'%5.3f,%5.3f,%5.3f,%5.3f\n',metricsGFS.c1,metricsGFS.c2,metricsGFS.c3,metricsGFS.count);
 
+% H3R
+metricsHRRR = wrf_metrics(buoy_ws4(ind4),hrrr_ws(ind4));
+disp(metricsHRRR);
+fprintf(fid,'%s,','HRRR');
+fprintf(fid,'%5.3f,%5.3f,%5.3f,%5.3f,',metricsHRRR.mo,metricsHRRR.mf,metricsHRRR.so,metricsHRRR.sf);
+fprintf(fid,'%5.3f,%5.3f,%5.3f,%5.3f,%4.2f,',metricsHRRR.rms,metricsHRRR.crms,metricsHRRR.mb,metricsHRRR.cc,metricsHRRR.mae);
+fprintf(fid,'%5.3f,%5.3f,%5.3f,%5.3f\n',metricsHRRR.c1,metricsHRRR.c2,metricsHRRR.c3,metricsHRRR.count);
+
 fclose(fid);
 
 %% Thresholds for data colors
@@ -146,4 +166,5 @@ fclose(fid);
 disp('wrf'); disp(datestr(wrf_dtime(1))); disp(datestr(wrf_dtime(end)));
 disp('nam'); disp(datestr(nam_time(1))); disp(datestr(nam_time(end)));
 disp('gfs'); disp(datestr(gfs_time(1))); disp(datestr(gfs_time(end)));
+disp('hrrr'); disp(datestr(hrrr_time(1))); disp(datestr(hrrr_time(end)));
 
