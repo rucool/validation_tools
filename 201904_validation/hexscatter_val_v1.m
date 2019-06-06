@@ -1,9 +1,8 @@
 %% Hexscatter figure for RU-WRF
 clear; clc; close all;
 
-
 start_date = datenum(2016,01,01);
-end_date = datenum(2017,01,01)-1;
+end_date = datenum(2018,01,01)-1;
 lvl = 2; %100m
 [wrf_ws,~,wrf_time] = wrf_rerun_loader(start_date,end_date,lvl);
 
