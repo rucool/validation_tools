@@ -16,7 +16,7 @@ end_date = datenum(2019,6,01);
 total_days = 4;
 glvl = 1; %height level for gfs, 10,80,100
 nlvl = 1; %height level for nam, 10,80
-hlvl = 1; %height level for hrrr, 10,80
+hlvl = 1; %height level for h3r, 10,80
 
 %% Load Data
 % GFS and NAM
