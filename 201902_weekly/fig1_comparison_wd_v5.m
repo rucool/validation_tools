@@ -107,6 +107,7 @@ set(gca,'xlim',[wrf_dtime(1) wrf_dtime(end)]);
 xlabel(sprintf('Start date: %s',datestr(wrf_dtime(1),1)));
 ylabel('m/s');
 ylim([0 360])
+xlim([datenum(2019,05,28) datenum(2019,06,01)])
 yticks(0:90:360)
 grid on;
 title(sprintf('Wind Speeds at %s',buoy));
