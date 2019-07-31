@@ -11,9 +11,9 @@ buoy = '44065';
 
 % Specify Model File
 addpath /Volumes/home/jad438/wrf_converters/2weeks
-dfile = '2week_20190528_20190603.nc';
-end_date = datenum(2019,6,01);
-total_days = 4;
+dfile = 'v39_2w_W39_20190625_20190708.nc';
+end_date = datenum(2019,7,08);
+total_days = 7;
 glvl = 1; %height level for gfs, 10,80,100
 nlvl = 1; %height level for nam, 10,80
 hlvl = 1; %height level for hrrr, 10,80
@@ -101,18 +101,19 @@ plot(gfs_time,gfs_ws,'color',[0.4660 0.6740 0.1880],'linewidth',.5,'displayname'
 plot(hrrr_time,hrrr_ws,'linewidth',.5,'displayname','HRRR');
 plot(wrf_dtime,wrf_ws,'r','linewidth',.8,'displayname','WRF 3.9');
 
-datetick('x','keepticks');
+datetick('x');
 set(gca,'xlim',[wrf_dtime(1) wrf_dtime(end)]);
 xlabel(sprintf('Start date: %s',datestr(wrf_dtime(1),1)));
 ylabel('m/s');
 yline(12.5,'color',[.5 .5 .5],'linestyle','--','displayname','12.5 Cutoff');
+xlim([datenum(2019,07,01) end_date])
 grid on;
 title(sprintf('Wind Speeds at %s',buoy));
 l = legend('Location','Best');
 
 % Output plot
 set(gcf,'PaperPosition',[0.25 0.5 10 5]);
-fname = sprintf('output/buoy_nams_gfs_comparison_%s_%s_%s',buoy,datestr(start_date(1),29),datestr(end_date(end),29));
+fname = sprintf('output/buoy_nams_gfs_v39_comparison_%s_%s_%s',buoy,datestr(start_date(1),29),datestr(end_date(end),29));
 print(gcf,'-dpng','-r300', fname);
 
 %% Metrics
@@ -123,7 +124,7 @@ ind2 = find(nam_time>=start_date & nam_time < end_date);
 ind3 = find(gfs_time>=start_date & gfs_time < end_date);
 ind4 = find(hrrr_time>=start_date & hrrr_time < end_date);
 
-outfile = sprintf('output/metrics_all_%s_%s_%s.csv',buoy,datestr(start_date,29),datestr(end_date,29));
+outfile = sprintf('output/metrics_all_v39_%s_%s_%s.csv',buoy,datestr(start_date,29),datestr(end_date,29));
 fid = fopen(outfile,'w');
 fprintf(fid,'%s\n','Model,mo,mf,so,sf,rms,crms,mb,cc,mae,c1,c2,c3,count');
 
